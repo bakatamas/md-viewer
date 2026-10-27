@@ -1,0 +1,379 @@
+/* Themes, from the Redmine/Textile editor (randomblog.hu/tools/redmine-ticket). Set via data-theme on <html>;
+   the name prefix decides color-scheme, the highlight.js stylesheet and the Mermaid theme.
+   --surface is the bar, --bg the TOC side, --page/--page-text/--head/--link the rendered document. */
+[data-theme^="dark"] { color-scheme: dark; }
+[data-theme^="light"] { color-scheme: light; }
+[data-theme="dark-slate"] {
+  --bg: #1e2127; --surface: #22262e; --text: #d7dce3; --muted: #8b94a3; --border: #333a45;
+  --accent: #6ea8fe; --sel: #3a4a63; --page: #262b34; --page-text: #dfe4ec; --head: #f0f3f8; --code-bg: #1a1d23; --link: #7db4ff;
+}
+[data-theme="dark-carbon"] {
+  --bg: #141414; --surface: #1b1b1b; --text: #e0e0e0; --muted: #888888; --border: #2c2c2c;
+  --accent: #ffb454; --sel: #4a3a1e; --page: #1f1f1f; --page-text: #e6e6e6; --head: #ffffff; --code-bg: #0d0d0d; --link: #ffc06a;
+}
+[data-theme="dark-ocean"] {
+  --bg: #0f1b2d; --surface: #132339; --text: #cbd8ea; --muted: #7089a6; --border: #20344f;
+  --accent: #4dd0e1; --sel: #1c3a52; --page: #152941; --page-text: #d6e2f0; --head: #eaf3ff; --code-bg: #0a1524; --link: #5fd6e8;
+}
+[data-theme="dark-forest"] {
+  --bg: #161c17; --surface: #1c231d; --text: #d3ddd2; --muted: #7f9080; --border: #2a352b;
+  --accent: #8bc48a; --sel: #2c4630; --page: #202a21; --page-text: #dbe6da; --head: #f0f6ef; --code-bg: #111611; --link: #9fd49e;
+}
+[data-theme="dark-plum"] {
+  --bg: #1c1620; --surface: #231b28; --text: #e0d5e6; --muted: #9a8aa3; --border: #372c3e;
+  --accent: #c792ea; --sel: #463252; --page: #281f2e; --page-text: #e6dcec; --head: #f6eefa; --code-bg: #150f18; --link: #d6a7f0;
+}
+[data-theme="light-paper"] {
+  --bg: #f4f2ec; --surface: #ffffff; --text: #2c2a26; --muted: #8a857b; --border: #e0dcd2;
+  --accent: #b06a2c; --sel: #f0e3d0; --page: #fbfaf6; --page-text: #2c2a26; --head: #1a1815; --code-bg: #f0eee7; --link: #a15a1e;
+}
+[data-theme="light-snow"] {
+  --bg: #eef1f5; --surface: #ffffff; --text: #22272e; --muted: #7d8590; --border: #dce1e8;
+  --accent: #2563eb; --sel: #dbe6fb; --page: #fafbfc; --page-text: #22272e; --head: #0f1419; --code-bg: #eef1f5; --link: #1d4ed8;
+}
+[data-theme="light-mint"] {
+  --bg: #eef4f0; --surface: #ffffff; --text: #1f2b24; --muted: #7a897f; --border: #d6e2da;
+  --accent: #0f8a5f; --sel: #d3ecdf; --page: #f9fcfa; --page-text: #1f2b24; --head: #0d1a13; --code-bg: #eaf2ed; --link: #0b7a52;
+}
+[data-theme="light-sky"] {
+  --bg: #edf3f7; --surface: #ffffff; --text: #1e2a33; --muted: #788896; --border: #d5e2ea;
+  --accent: #0c7bb8; --sel: #d2e8f4; --page: #f8fbfd; --page-text: #1e2a33; --head: #0c1a24; --code-bg: #e9f1f6; --link: #0a6ba1;
+}
+[data-theme="light-rose"] {
+  --bg: #f6eef0; --surface: #ffffff; --text: #2e2226; --muted: #94818a; --border: #e6d5db;
+  --accent: #c2456b; --sel: #f2d9e2; --page: #fcf8f9; --page-text: #2e2226; --head: #1c1216; --code-bg: #f2e7ea; --link: #b03a5f;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top bar */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+/* Tabs */
+.tabs {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none; /* scrolled with the wheel, see app.js */
+}
+.no-file { color: var(--muted); font-size: 14px; white-space: nowrap; }
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 220px;
+  flex-shrink: 0;
+  padding: 3px 4px 3px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+.tab:hover { color: var(--text); background: var(--sel); }
+.tab.active { color: var(--text); background: var(--bg); border-color: var(--border); font-weight: 600; }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.tab.unavailable .tab-name { text-decoration: line-through; }
+.tab.dragging { opacity: 0.5; }
+.tab.drop-before { box-shadow: inset 2px 0 0 var(--accent); }
+.tab.drop-after { box-shadow: inset -2px 0 0 var(--accent); }
+.tab-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tab-close {
+  font: inherit;
+  font-size: 16px;
+  line-height: 1;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.6;
+}
+.tab-close:hover { opacity: 1; background: var(--border); }
+.btn {
+  font: inherit;
+  font-size: 14px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:hover { border-color: var(--muted); }
+.btn.icon { display: flex; padding: 4px 6px; color: var(--accent); flex-shrink: 0; }
+#wide-btn, #about-btn { color: var(--text); }
+#wide-btn[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+.btn.select { padding: 5px 8px; background: var(--surface); }
+/* Without these Chromium repaints the open <select> list with the OS palette */
+.btn.select option, .btn.select optgroup { background: var(--surface); color: var(--text); }
+.btn[aria-pressed="false"] { color: var(--muted); }
+
+/* Layout */
+.layout { flex: 1; display: flex; min-height: 0; }
+.toc {
+  width: 260px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  padding: 20px 12px 40px 16px;
+  border-right: 1px solid var(--border);
+  font-size: 14px;
+}
+.toc:empty, .toc.hidden { display: none; }
+.toc a {
+  display: block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: var(--muted);
+  text-decoration: none;
+  line-height: 1.4;
+}
+.toc a:hover { color: var(--text); background: var(--sel); }
+.toc a.current { color: var(--accent); font-weight: 600; }
+.toc .l2 { padding-left: 20px; }
+.toc .l3 { padding-left: 32px; font-size: 13px; }
+.scroller { flex: 1; overflow-y: auto; min-width: 0; background: var(--page); color: var(--page-text); }
+/* Containing block for absolutely positioned content (KaTeX's hidden MathML, the footnotes' sr-only label):
+   without it they're placed against the page and make it taller than the window, adding a second scrollbar */
+.scroller { position: relative; }
+.scroller:focus { outline: none; } /* focused only so keyboard scrolling works, see focusDocument */
+
+/* Rendered markdown */
+.markdown {
+  font-size: calc(16px * var(--zoom, 1));
+  max-width: calc(860px * var(--zoom, 1));
+  margin: 0 auto;
+  padding: 32px 40px 80px;
+  overflow-wrap: break-word;
+}
+.markdown.wide { max-width: none; }
+.markdown > :first-child { margin-top: 0; }
+
+/* Restored tab waiting for file permission */
+.notice {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 8px 16px;
+  background: var(--sel);
+  color: var(--text);
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.notice[hidden] { display: none; }
+.markdown h1, .markdown h2, .markdown h3, .markdown h4, .markdown h5, .markdown h6 {
+  line-height: 1.25;
+  margin: 1.6em 0 0.6em;
+  color: var(--head);
+  scroll-margin-top: 16px;
+}
+.markdown h1 { font-size: 2em; padding-bottom: 0.3em; border-bottom: 1px solid var(--border); }
+.markdown h2 { font-size: 1.5em; padding-bottom: 0.3em; border-bottom: 1px solid var(--border); }
+.markdown h3 { font-size: 1.25em; }
+.markdown h4 { font-size: 1em; }
+.markdown h5, .markdown h6 { font-size: 0.9em; color: var(--muted); }
+.markdown p, .markdown ul, .markdown ol, .markdown blockquote, .markdown pre, .markdown table { margin: 0 0 1em; }
+.markdown a { color: var(--link); }
+.markdown img { max-width: 100%; }
+.markdown hr { border: 0; border-top: 1px solid var(--border); margin: 2em 0; }
+.markdown blockquote {
+  margin-left: 0;
+  padding: 0 1em;
+  border-left: 4px solid var(--border);
+  color: var(--muted);
+}
+.markdown code {
+  font: 0.875em/1.5 ui-monospace, "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  background: var(--code-bg);
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+}
+.markdown pre {
+  background: var(--code-bg);
+  padding: 14px 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+.markdown pre code { background: none; padding: 0; font-size: 0.85em; }
+.markdown kbd {
+  font: 0.8em/1.4 ui-monospace, "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  padding: 0.1em 0.45em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--code-bg);
+}
+.markdown pre code.hljs { background: none; padding: 0; }
+.markdown table { border-collapse: collapse; display: block; overflow-x: auto; max-width: 100%; }
+.markdown th, .markdown td { border: 1px solid var(--border); padding: 6px 12px; }
+.markdown th { background: var(--code-bg); text-align: left; }
+.markdown li > p { margin: 0; }
+.markdown input[type="checkbox"] { margin-right: 0.4em; }
+.markdown .mermaid { text-align: center; margin: 0 0 1em; }
+
+/* Code blocks with a copy button */
+.markdown .code-block { position: relative; margin: 0 0 1em; }
+.markdown .code-block pre { margin: 0; }
+.copy-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font: inherit;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--page);
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.code-block:hover .copy-btn, .copy-btn:focus-visible { opacity: 1; }
+.copy-btn:hover { color: var(--text); }
+@media (hover: none) { .copy-btn { opacity: 0.8; } }
+
+/* GitHub-style callouts */
+.markdown blockquote.alert { border-left-color: var(--alert); color: inherit; }
+.markdown .alert-title { color: var(--alert); font-weight: 600; margin-bottom: 0.25em; }
+.alert-note { --alert: #0969da; }
+.alert-tip { --alert: #1a7f37; }
+.alert-important { --alert: #8250df; }
+.alert-warning { --alert: #9a6700; }
+.alert-caution { --alert: #cf222e; }
+[data-theme^="dark"] .alert-note { --alert: #4493f8; }
+[data-theme^="dark"] .alert-tip { --alert: #3fb950; }
+[data-theme^="dark"] .alert-important { --alert: #ab7df8; }
+[data-theme^="dark"] .alert-warning { --alert: #d29922; }
+[data-theme^="dark"] .alert-caution { --alert: #f85149; }
+
+/* Front matter */
+.markdown .front-matter { margin: 0 0 1.5em; font-size: 0.875em; color: var(--muted); }
+.markdown .front-matter summary { cursor: pointer; user-select: none; width: max-content; }
+.markdown .front-matter table { margin: 0.5em 0 0; }
+.markdown .front-matter th { background: none; font-weight: 600; }
+.markdown .front-matter th, .markdown .front-matter td { padding: 3px 10px; vertical-align: top; }
+
+/* Footnotes and math */
+.markdown .sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+.markdown .footnotes { margin-top: 2.5em; padding-top: 1em; border-top: 1px solid var(--border); font-size: 0.9em; color: var(--muted); }
+.markdown .katex-display { overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+.markdown .mermaid-error { color: #d14343; white-space: pre-wrap; }
+
+/* Empty state */
+.empty { text-align: center; padding: 18vh 0; color: var(--muted); }
+.empty-title { font-size: 1.4em; font-weight: 600; color: var(--head); }
+.hint { font-size: 14px; }
+
+/* Recent files on the empty screen */
+.recent { max-width: 420px; margin: 2.5em auto 0; text-align: left; }
+.recent-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 0.5em 8px; }
+.recent ul { list-style: none; margin: 0; padding: 0; }
+.recent li { display: flex; align-items: center; border-radius: 6px; }
+.recent li:hover { background: var(--sel); }
+.recent-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  font: inherit;
+  font-size: 15px;
+  padding: 6px 8px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.recent-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recent-when { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.recent-remove {
+  font: inherit;
+  font-size: 16px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0;
+}
+.recent li:hover .recent-remove, .recent-remove:focus-visible { opacity: 1; }
+.recent-remove:hover { color: var(--text); background: var(--border); }
+@media (hover: none) { .recent-remove { opacity: 1; } }
+
+/* Toast (zoom level etc.) */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+  font-size: 14px;
+  pointer-events: none;
+}
+.toast[hidden] { display: none; }
+
+/* Drop overlay */
+.drop {
+  position: fixed;
+  inset: 12px;
+  border: 3px dashed var(--accent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5em;
+  font-weight: 600;
+  pointer-events: none;
+}
+.drop[hidden] { display: none; }
+
+@media (max-width: 800px) {
+  .toc { display: none; }
+  #toc-btn, #wide-btn { display: none; }
+  .markdown { padding: 20px 16px 60px; }
+  .bar { padding: 8px 12px; gap: 6px; }
+}
+@media print {
+  .bar, .toc, .notice, .copy-btn, .toast { display: none !important; }
+  .scroller { overflow: visible; }
+  .markdown { max-width: none; padding: 0; }
+}
