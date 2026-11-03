@@ -175,9 +175,11 @@ const hasPopover = 'popover' in HTMLElement.prototype;
 const panelOpen = () => (hasPopover ? sizePanel.matches(':popover-open') : !sizePanel.hidden);
 if (!hasPopover) {
   sizePanel.hidden = true;
+  sizeBtn.setAttribute('aria-expanded', 'false');
   const show = (open) => {
     if (open) { updateSizePanel(); placeSizePanel(); }
     sizePanel.hidden = !open;
+    sizeBtn.setAttribute('aria-expanded', String(open)); // the native popover does this itself
   };
   sizeBtn.addEventListener('click', () => show(sizePanel.hidden));
   document.addEventListener('pointerdown', (e) => {

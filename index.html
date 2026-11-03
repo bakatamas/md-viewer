@@ -12,7 +12,8 @@
       try { t = localStorage.getItem('mdv-theme'); s = parseFloat(localStorage.getItem('mdv-scale')); } catch (e) { /* storage unavailable */ }
       if (!/^(dark|light)-[a-z]+$/.test(t || '')) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark-slate' : 'light-snow';
       document.documentElement.dataset.theme = t;
-      if (s >= 0.5 && s <= 4) document.documentElement.style.setProperty('--ui-scale', s);
+      if (s >= 0.8 && s <= 3) // the range of SCALE_STEPS in app.js
+        document.documentElement.style.setProperty('--ui-scale', s);
     })();
   </script>
   <link rel="manifest" href="manifest.webmanifest">
