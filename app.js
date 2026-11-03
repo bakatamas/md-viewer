@@ -177,8 +177,8 @@ if (!hasPopover) {
   sizePanel.hidden = true;
   sizeBtn.setAttribute('aria-expanded', 'false');
   const show = (open) => {
-    if (open) { updateSizePanel(); placeSizePanel(); }
     sizePanel.hidden = !open;
+    if (open) { updateSizePanel(); placeSizePanel(); }
     sizeBtn.setAttribute('aria-expanded', String(open)); // the native popover does this itself
   };
   sizeBtn.addEventListener('click', () => show(sizePanel.hidden));
@@ -204,14 +204,23 @@ function updateSizePanel() {
   $('size-reset').disabled = uiScale === 1 && zoom === 1;
 }
 
+// Under the button, right-aligned with it, but kept 8px inside the window: the header wraps at large
+// scales, so the button can be anywhere. Needs the panel's size, so it must be displayed.
 function placeSizePanel() {
   const r = sizeBtn.getBoundingClientRect();
-  sizePanel.style.top = r.bottom + 6 + 'px';
-  sizePanel.style.right = Math.max(8, document.documentElement.clientWidth - r.right) + 'px';
+  const cw = document.documentElement.clientWidth;
+  const top = r.bottom + 6;
+  sizePanel.style.top = top + 'px';
+  sizePanel.style.maxHeight = Math.max(100, innerHeight - top - 8) + 'px';
+  const w = sizePanel.offsetWidth;
+  sizePanel.style.left = Math.max(8, Math.min(r.right - w, cw - 8 - w)) + 'px';
 }
 
+// The panel is only measurable once it's shown, so it stays invisible until 'toggle' has placed it
 sizePanel.addEventListener('beforetoggle', (e) => {
-  if (e.newState === 'open') { updateSizePanel(); placeSizePanel(); }
+  if (e.newState !== 'open') return;
+  updateSizePanel();
+  sizePanel.style.visibility = 'hidden';
 });
 window.addEventListener('resize', () => { if (panelOpen()) placeSizePanel(); });
 sizePanel.addEventListener('click', (e) => {
@@ -234,7 +243,12 @@ let sizeByPointer = false;
 sizeBtn.addEventListener('pointerdown', () => { sizeByPointer = true; });
 sizeBtn.addEventListener('keydown', () => { sizeByPointer = false; });
 sizePanel.addEventListener('toggle', (e) => {
-  if (e.newState !== 'closed' || !sizeByPointer) return;
+  if (e.newState === 'open') {
+    placeSizePanel();
+    sizePanel.style.visibility = '';
+    return;
+  }
+  if (!sizeByPointer) return;
   const f = document.activeElement;
   if (f === document.body || f === sizeBtn || sizePanel.contains(f)) focusDocument();
 });

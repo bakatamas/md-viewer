@@ -163,7 +163,7 @@ body {
   color: var(--text);
   box-shadow: 0 0.25rem 1rem rgb(0 0 0 / 0.2);
   font-size: 0.875rem;
-  max-width: calc(100vw - 16px); /* placeSizePanel keeps 8px from the right edge */
+  max-width: calc(100vw - 16px); /* placeSizePanel keeps it 8px inside the window */
   overflow: auto;
   z-index: 10; /* only matters without the Popover API, where it isn't in the top layer */
 }
