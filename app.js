@@ -159,7 +159,7 @@ function setZoom(z) {
     content.style.setProperty('--zoom', zoom);
   });
   try { localStorage.setItem('mdv-zoom', String(zoom)); } catch (e) { /* ignore */ }
-  sizeChanged(percent(zoom));
+  sizeChanged('Text ' + percent(zoom));
 }
 
 const scaleBy = (dir) => setScale(nextStep(SCALE_STEPS, uiScale, dir));
@@ -169,7 +169,22 @@ const zoomBy = (dir) => setZoom(nextStep(ZOOM_STEPS, zoom, dir));
 
 const sizeBtn = $('size-btn');
 const sizePanel = $('size-panel');
-const panelOpen = () => sizePanel.matches(':popover-open');
+// Without the Popover API (Safari < 17, Firefox < 125) the attribute does nothing, and ':popover-open'
+// would even throw, so the panel is shown and hidden by hand there.
+const hasPopover = 'popover' in HTMLElement.prototype;
+const panelOpen = () => (hasPopover ? sizePanel.matches(':popover-open') : !sizePanel.hidden);
+if (!hasPopover) {
+  sizePanel.hidden = true;
+  const show = (open) => {
+    if (open) { updateSizePanel(); placeSizePanel(); }
+    sizePanel.hidden = !open;
+  };
+  sizeBtn.addEventListener('click', () => show(sizePanel.hidden));
+  document.addEventListener('pointerdown', (e) => {
+    if (panelOpen() && !sizePanel.contains(e.target) && !sizeBtn.contains(e.target)) show(false);
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && panelOpen()) show(false); });
+}
 
 function sizeChanged(label) {
   if (!panelOpen()) { toast(label); return; } // the panel shows the values itself
@@ -223,7 +238,8 @@ sizePanel.addEventListener('toggle', (e) => {
 });
 
 /* Pinch on a touch screen: text zoom, one step per 20% change in finger distance. Browser
-   pinch-zoom is turned off with touch-action in style.css, so this is the only pinch. */
+   pinch-zoom is turned off with touch-action in style.css, so this is the only pinch. Two-finger
+   moves are cancelled so the document doesn't also scroll; one-finger scrolling is left alone. */
 
 let pinchDistance = 0;
 const fingerDistance = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
@@ -232,13 +248,14 @@ scroller.addEventListener('touchstart', (e) => {
 }, { passive: true });
 scroller.addEventListener('touchmove', (e) => {
   if (!pinchDistance || e.touches.length !== 2) return;
+  if (e.cancelable) e.preventDefault();
   const d = fingerDistance(e.touches);
   const ratio = d / pinchDistance;
   if (ratio > 1.2 || ratio < 1 / 1.2) {
     zoomBy(ratio > 1 ? 1 : -1);
     pinchDistance = d;
   }
-}, { passive: true });
+}, { passive: false });
 for (const type of ['touchend', 'touchcancel']) {
   scroller.addEventListener(type, (e) => { if (e.touches.length < 2) pinchDistance = 0; }, { passive: true });
 }

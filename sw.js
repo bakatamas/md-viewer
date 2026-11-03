@@ -1,5 +1,5 @@
 // Bump VERSION whenever you change any app file, so clients pick up the new shell.
-const VERSION = 'mdv-v25';
+const VERSION = 'mdv-v26';
 const SHELL = [
   './',
   'index.html',
