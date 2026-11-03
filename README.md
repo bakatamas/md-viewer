@@ -40,7 +40,7 @@ and no account.
 
 - Auto-refresh: saved changes appear within a second, without losing your place
 - Contents sidebar that highlights the section you're reading, with smooth scrolling
-- 10 color themes (5 dark, 5 light), full-width mode, and text zoom that scales only the document
+- 10 color themes (5 dark, 5 light), full-width mode, and a size panel that scales the whole interface (for high-resolution screens) or just the document's text, also by pinching
 - Copy button on every code block
 - Clean print layout, and it works offline once loaded
 

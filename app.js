@@ -98,7 +98,7 @@ $('wide-btn').addEventListener('click', (e) => {
 });
 applyWide();
 
-/* ---------- Toast (zoom level, small errors) ---------- */
+/* ---------- Toast (size changes, small errors) ---------- */
 
 const toastEl = $('toast');
 let toastTimer = null;
@@ -109,33 +109,139 @@ function toast(text) {
   toastTimer = setTimeout(() => { toastEl.hidden = true; }, 1200);
 }
 
-/* ---------- Text zoom: Ctrl +/-/0 and Ctrl+wheel scale the document, not the app ---------- */
+/* ---------- Sizing: interface scale (everything) and text zoom (the document only) ---------- */
 
+// Every length in style.css is in rem/em. The interface scale multiplies the root font size
+// (--ui-scale on <html>, applied before first paint by the inline script in index.html); text zoom
+// (--zoom on #content) multiplies the document on top of it. Both are set from the Aa panel; text
+// zoom also with Ctrl +/-/0, Ctrl+wheel and a pinch.
+const SCALE_STEPS = [0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3];
 const ZOOM_STEPS = [0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5];
-let zoom = 1;
-try {
-  const z = parseFloat(localStorage.getItem('mdv-zoom'));
-  if (ZOOM_STEPS.includes(z)) zoom = z;
-} catch (e) { /* ignore */ }
+
+function storedStep(key, steps) {
+  try {
+    const v = parseFloat(localStorage.getItem(key));
+    if (steps.includes(v)) return v;
+  } catch (e) { /* ignore */ }
+  return 1;
+}
+
+let uiScale = storedStep('mdv-scale', SCALE_STEPS);
+let zoom = storedStep('mdv-zoom', ZOOM_STEPS);
+document.documentElement.style.setProperty('--ui-scale', uiScale);
+content.style.setProperty('--zoom', zoom);
+
+const nextStep = (steps, v, dir) => steps[Math.max(0, Math.min(steps.length - 1, steps.indexOf(v) + dir))];
+const percent = (v) => Math.round(v * 100) + '%';
+
+// Keep the same relative position in the document across a size change
+function keepPosition(change) {
+  const range = scroller.scrollHeight - scroller.clientHeight;
+  const ratio = range > 0 ? scroller.scrollTop / range : 0;
+  change();
+  scroller.scrollTop = ratio * (scroller.scrollHeight - scroller.clientHeight);
+}
+
+function setScale(s) {
+  if (s === uiScale) return;
+  keepPosition(() => {
+    uiScale = s;
+    document.documentElement.style.setProperty('--ui-scale', uiScale);
+  });
+  try { localStorage.setItem('mdv-scale', String(uiScale)); } catch (e) { /* ignore */ }
+  sizeChanged('Interface ' + percent(uiScale));
+}
 
 function setZoom(z) {
   if (z === zoom) return;
-  // Keep the same relative position in the document across the size change
-  const range = scroller.scrollHeight - scroller.clientHeight;
-  const ratio = range > 0 ? scroller.scrollTop / range : 0;
-  zoom = z;
-  content.style.setProperty('--zoom', zoom);
-  scroller.scrollTop = ratio * (scroller.scrollHeight - scroller.clientHeight);
+  keepPosition(() => {
+    zoom = z;
+    content.style.setProperty('--zoom', zoom);
+  });
   try { localStorage.setItem('mdv-zoom', String(zoom)); } catch (e) { /* ignore */ }
-  toast(Math.round(zoom * 100) + '%');
+  sizeChanged(percent(zoom));
 }
 
-function zoomBy(dir) {
-  const i = ZOOM_STEPS.indexOf(zoom);
-  setZoom(ZOOM_STEPS[Math.max(0, Math.min(ZOOM_STEPS.length - 1, i + dir))]);
+const scaleBy = (dir) => setScale(nextStep(SCALE_STEPS, uiScale, dir));
+const zoomBy = (dir) => setZoom(nextStep(ZOOM_STEPS, zoom, dir));
+
+/* The Aa panel (a popover, so it's in the top layer and light-dismisses) */
+
+const sizeBtn = $('size-btn');
+const sizePanel = $('size-panel');
+const panelOpen = () => sizePanel.matches(':popover-open');
+
+function sizeChanged(label) {
+  if (!panelOpen()) { toast(label); return; } // the panel shows the values itself
+  updateSizePanel();
+  placeSizePanel(); // the button moves when the interface is rescaled
 }
 
-content.style.setProperty('--zoom', zoom);
+function updateSizePanel() {
+  $('ui-scale-value').textContent = percent(uiScale);
+  $('text-zoom-value').textContent = percent(zoom);
+  for (const b of sizePanel.querySelectorAll('button[data-step]')) {
+    const [steps, v] = b.dataset.target === 'ui' ? [SCALE_STEPS, uiScale] : [ZOOM_STEPS, zoom];
+    b.disabled = nextStep(steps, v, +b.dataset.step) === v;
+  }
+  $('size-reset').disabled = uiScale === 1 && zoom === 1;
+}
+
+function placeSizePanel() {
+  const r = sizeBtn.getBoundingClientRect();
+  sizePanel.style.top = r.bottom + 6 + 'px';
+  sizePanel.style.right = Math.max(8, document.documentElement.clientWidth - r.right) + 'px';
+}
+
+sizePanel.addEventListener('beforetoggle', (e) => {
+  if (e.newState === 'open') { updateSizePanel(); placeSizePanel(); }
+});
+window.addEventListener('resize', () => { if (panelOpen()) placeSizePanel(); });
+sizePanel.addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-step]');
+  if (!b) return;
+  if (b.dataset.target === 'ui') scaleBy(+b.dataset.step);
+  else zoomBy(+b.dataset.step);
+  // A button that just got disabled drops focus to the body, and Esc would no longer close the panel
+  if (b.disabled) sizePanel.querySelector('button:not(:disabled)')?.focus();
+});
+$('size-reset').addEventListener('click', () => {
+  setScale(1);
+  setZoom(1);
+  sizePanel.querySelector('button:not(:disabled)')?.focus();
+});
+
+// Opened with the mouse or a finger: once it closes, hand focus back to the document so the keys
+// scroll it. Not if the closing click went to some other control, which keeps its focus.
+let sizeByPointer = false;
+sizeBtn.addEventListener('pointerdown', () => { sizeByPointer = true; });
+sizeBtn.addEventListener('keydown', () => { sizeByPointer = false; });
+sizePanel.addEventListener('toggle', (e) => {
+  if (e.newState !== 'closed' || !sizeByPointer) return;
+  const f = document.activeElement;
+  if (f === document.body || f === sizeBtn || sizePanel.contains(f)) focusDocument();
+});
+
+/* Pinch on a touch screen: text zoom, one step per 20% change in finger distance. Browser
+   pinch-zoom is turned off with touch-action in style.css, so this is the only pinch. */
+
+let pinchDistance = 0;
+const fingerDistance = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+scroller.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 2) pinchDistance = fingerDistance(e.touches);
+}, { passive: true });
+scroller.addEventListener('touchmove', (e) => {
+  if (!pinchDistance || e.touches.length !== 2) return;
+  const d = fingerDistance(e.touches);
+  const ratio = d / pinchDistance;
+  if (ratio > 1.2 || ratio < 1 / 1.2) {
+    zoomBy(ratio > 1 ? 1 : -1);
+    pinchDistance = d;
+  }
+}, { passive: true });
+for (const type of ['touchend', 'touchcancel']) {
+  scroller.addEventListener(type, (e) => { if (e.touches.length < 2) pinchDistance = 0; }, { passive: true });
+}
 
 // Ctrl+wheel (and touchpad pinch, which arrives as Ctrl+wheel) would zoom the whole app
 let wheelZoom = 0;
@@ -427,6 +533,11 @@ async function renderMermaid(blocks, scrollTop, gen) {
     try {
       const { svg } = await mermaid.render('mmd-' + (++mermaidCounter), src);
       el.innerHTML = svg;
+      // Mermaid caps the SVG's width at its natural size in px. Rescale that with the interface scale
+      // (rem) and text zoom. Not em: the SVG's own stylesheet sets its font-size to 16px.
+      const diagram = el.querySelector('svg');
+      const w = diagram && diagram.viewBox.baseVal && diagram.viewBox.baseVal.width;
+      if (w) diagram.style.maxWidth = `calc(${w / 16}rem * var(--zoom, 1))`;
     } catch (e) {
       el.classList.add('mermaid-error');
       el.textContent = 'Mermaid error: ' + (e && e.message ? e.message : e) + '\n\n' + src;
@@ -943,7 +1054,7 @@ function isFirstVisit(session) {
   try {
     if (localStorage.getItem('mdv-seen')) return false;
     localStorage.setItem('mdv-seen', '1');
-    if (['mdv-theme', 'mdv-toc', 'mdv-wide', 'mdv-zoom'].some((k) => localStorage.getItem(k) !== null)) return false;
+    if (['mdv-theme', 'mdv-toc', 'mdv-wide', 'mdv-zoom', 'mdv-scale'].some((k) => localStorage.getItem(k) !== null)) return false;
   } catch (e) {
     return false; // without storage it would reappear on every visit
   }

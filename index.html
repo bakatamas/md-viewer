@@ -6,12 +6,13 @@
   <title>Markdown Viewer</title>
   <meta id="theme-color" name="theme-color" content="#22262e">
   <script>
-    // Apply the saved theme before first paint; app.js validates it against the <select> options.
+    // Apply the saved theme and interface scale before first paint; app.js validates them.
     (function () {
-      var t = null;
-      try { t = localStorage.getItem('mdv-theme'); } catch (e) { /* storage unavailable */ }
+      var t = null, s = NaN;
+      try { t = localStorage.getItem('mdv-theme'); s = parseFloat(localStorage.getItem('mdv-scale')); } catch (e) { /* storage unavailable */ }
       if (!/^(dark|light)-[a-z]+$/.test(t || '')) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark-slate' : 'light-snow';
       document.documentElement.dataset.theme = t;
+      if (s >= 0.5 && s <= 4) document.documentElement.style.setProperty('--ui-scale', s);
     })();
   </script>
   <link rel="manifest" href="manifest.webmanifest">
@@ -51,10 +52,28 @@
         <option value="light-rose">Rose</option>
       </optgroup>
     </select>
+    <button id="size-btn" class="btn icon" type="button" popovertarget="size-panel" title="Text and interface size" aria-label="Text and interface size">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M2.5 19 8 5l5.5 14M4.6 13.8h6.8M14 19l3.5-8.5L21 19M15.3 16h4.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
     <button id="about-btn" class="btn icon" type="button" title="About, features and shortcuts" aria-label="About Markdown Viewer">
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.15" fill="currentColor"/></svg>
     </button>
   </header>
+  <div id="size-panel" class="size-panel" popover role="dialog" aria-label="Size">
+    <div class="size-row">
+      <span>Interface</span>
+      <button class="btn" type="button" data-target="ui" data-step="-1" aria-label="Smaller interface">−</button>
+      <output id="ui-scale-value" class="size-value">100%</output>
+      <button class="btn" type="button" data-target="ui" data-step="1" aria-label="Larger interface">+</button>
+    </div>
+    <div class="size-row">
+      <span>Text</span>
+      <button class="btn" type="button" data-target="text" data-step="-1" aria-label="Smaller text">−</button>
+      <output id="text-zoom-value" class="size-value">100%</output>
+      <button class="btn" type="button" data-target="text" data-step="1" aria-label="Larger text">+</button>
+    </div>
+    <button id="size-reset" class="btn size-reset" type="button">Reset both</button>
+  </div>
 
   <div class="layout">
     <nav id="toc" class="toc" aria-label="Table of contents"></nav>

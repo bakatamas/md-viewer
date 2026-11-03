@@ -43,7 +43,9 @@ reopen it any time with the **ⓘ** button at the top right.
 - **Contents** sidebar: lists the document's headings, highlights the section you're reading, and scrolls smoothly
   to the one you click. The **Contents** button shows or hides it.
 - **Full width** (the ↔ button) lets the text use the whole window instead of a comfortable reading width.
-- **Text zoom** makes the document's text larger or smaller without zooming the rest of the app.
+- **Size** (the **Aa** button): *Interface* scales the whole app, text, buttons, tabs and sidebar alike, which helps on
+  high-resolution screens where everything looks tiny. *Text* makes only the document larger or smaller. On a touch
+  screen, pinch the document to change the text size.
 - **Themes**: pick one of 10 color themes, 5 dark and 5 light, from the menu at the top right.
 - **About** (the **ⓘ** button) opens this page.
 - **Code blocks** have a **Copy** button that appears when you hover over them.
@@ -51,7 +53,7 @@ reopen it any time with the **ⓘ** button at the top right.
 - **Printing** leaves out the toolbar and sidebar, so only the document is printed.
 - **Works offline** once it has been opened, and can be installed as an app.
 
-All settings (theme, sidebar, width, zoom) are remembered.
+All settings (theme, sidebar, width, sizes) are remembered.
 
 ## Keyboard shortcuts
 
@@ -67,7 +69,7 @@ On a Mac, use <kbd>Cmd</kbd> instead of <kbd>Ctrl</kbd>.
 | <kbd>Ctrl</kbd> <kbd>9</kbd> | Go to the last tab | ✓ |
 | <kbd>Ctrl</kbd> <kbd>+</kbd> / <kbd>Ctrl</kbd> <kbd>−</kbd> | Larger / smaller text | |
 | <kbd>Ctrl</kbd> <kbd>0</kbd> | Reset text size | |
-| <kbd>Ctrl</kbd> + mouse wheel, or pinch | Larger / smaller text | |
+| <kbd>Ctrl</kbd> + mouse wheel, or pinch (touchpad or touch screen) | Larger / smaller text | |
 | <kbd>Tab</kbd> | Move between tabs and buttons | |
 | <kbd>Enter</kbd> or <kbd>Space</kbd> on a tab | Switch to it | |
 | <kbd>Delete</kbd> on a tab | Close it | |
