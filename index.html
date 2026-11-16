@@ -33,6 +33,7 @@
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.38a1.5 1.5 0 0 1 1.06.44L11.5 7h8A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
     </button>
     <div id="tabs" class="tabs" role="tablist" aria-label="Open files"></div>
+    <span id="progress-pct" class="progress-pct" title="Read so far" hidden></span>
     <button id="toc-btn" class="btn" type="button" aria-pressed="true">Contents</button>
     <button id="wide-btn" class="btn icon" type="button" aria-pressed="false" title="Full width" aria-label="Full width">
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -79,6 +80,7 @@
   <div class="layout">
     <nav id="toc" class="toc" aria-label="Table of contents"></nav>
     <main id="scroller" class="scroller" tabindex="-1">
+      <div id="progress" class="progress" aria-hidden="true" hidden><div id="progress-fill" class="progress-fill"></div></div>
       <div id="notice" class="notice" hidden>
         <span>Showing the copy saved when this tab was last open.</span>
         <button id="reconnect-btn" class="btn" type="button">Reconnect to file</button>

@@ -381,9 +381,35 @@ function updateCurrentSection() {
   }
 }
 
+/* ---------- Reading progress ---------- */
+
+// A bar at the top of the document and a percentage in the header. Mobile browsers' overlay scrollbars fade
+// out after scrolling, and on e-ink they never appear at all. Both are hidden when the document fits in the
+// view, and only touched when the whole percentage changes, to keep e-ink repaints down.
+const progressEl = $('progress');
+const progressFill = $('progress-fill');
+const progressPct = $('progress-pct');
+let shownPercent = null; // null: hidden
+
+function updateProgress() {
+  const range = scroller.scrollHeight - scroller.clientHeight;
+  const pct = active && range > 1 ? Math.round(Math.min(1, Math.max(0, scroller.scrollTop / range)) * 100) : null;
+  if (pct === shownPercent) return;
+  shownPercent = pct;
+  progressEl.hidden = progressPct.hidden = pct === null;
+  if (pct === null) return;
+  progressFill.style.width = pct + '%';
+  progressPct.textContent = pct + '%';
+}
+
+// Covers everything that changes the scroll range without scrolling: renders, images and Mermaid diagrams
+// loading, text zoom, interface scale, window size
+new ResizeObserver(updateProgress).observe(content);
+new ResizeObserver(updateProgress).observe(scroller);
+
 let spyFrame = 0;
 scroller.addEventListener('scroll', () => {
-  if (!spyFrame) spyFrame = requestAnimationFrame(() => { spyFrame = 0; updateCurrentSection(); });
+  if (!spyFrame) spyFrame = requestAnimationFrame(() => { spyFrame = 0; updateCurrentSection(); updateProgress(); });
 }, { passive: true });
 
 const scriptPromises = new Map();
@@ -623,6 +649,7 @@ function render(text, scrollTop) {
 
   scroller.scrollTop = scrollTop;
   updateCurrentSection();
+  updateProgress();
   if (mermaidBlocks.length) renderMermaid(mermaidBlocks, scrollTop, gen);
 }
 
@@ -640,6 +667,7 @@ function showEmpty() {
   tocEntries = [];
   currentEntry = null;
   scroller.scrollTop = 0;
+  updateProgress();
   renderRecent();
 }
 

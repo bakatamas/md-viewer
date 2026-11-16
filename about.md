@@ -42,6 +42,8 @@ reopen it any time with the **ⓘ** button at the top right.
   place.
 - **Contents** sidebar: lists the document's headings, highlights the section you're reading, and scrolls smoothly
   to the one you click. The **Contents** button shows or hides it.
+- **Reading progress**: a thin bar at the top of the document and a percentage in the header show how far you've
+  read. They're hidden when the whole document fits on screen.
 - **Full width** (the ↔ button) lets the text use the whole window instead of a comfortable reading width.
 - **Size** (the **Aa** button): *Interface* scales the whole app, text, buttons, tabs and sidebar alike, which helps on
   high-resolution screens where everything looks tiny. *Text* makes only the document larger or smaller. On a touch
