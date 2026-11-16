@@ -207,7 +207,7 @@ body {
    The bar sticks to the top of #scroller, so it spans only the document column; the negative margin keeps it
    from taking space. No transitions: each change is one clean repaint on e-ink. app.js hides both when the
    document fits in the view. */
-.progress { position: sticky; top: 0; z-index: 1; height: 0.25rem; margin-bottom: -0.25rem; background: var(--border); }
+.progress { position: sticky; top: 0; z-index: 2; /* above the sticky .notice */ height: 0.25rem; margin-bottom: -0.25rem; background: var(--border); }
 .progress-fill { height: 100%; width: 0; background: var(--accent); }
 .progress-pct {
   flex-shrink: 0;

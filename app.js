@@ -403,9 +403,9 @@ function updateProgress() {
 }
 
 // Covers everything that changes the scroll range without scrolling: renders, images and Mermaid diagrams
-// loading, text zoom, interface scale, window size
-new ResizeObserver(updateProgress).observe(content);
-new ResizeObserver(updateProgress).observe(scroller);
+// loading, text zoom, interface scale, window size, the Reconnect notice appearing or going away
+const progressObserver = new ResizeObserver(updateProgress);
+for (const el of [content, scroller, noticeEl]) progressObserver.observe(el);
 
 let spyFrame = 0;
 scroller.addEventListener('scroll', () => {
